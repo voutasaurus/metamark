@@ -60,9 +60,9 @@ func loadList(key string) (*List, error) {
 	return ret, nil
 }
 
-const lenPath = len("/new/")
+const lenPath = len("/?pass=")
 
-var titleValidator = regexp.MustCompile("^[a-zA-Z_]+$")
+var titleValidator = regexp.MustCompile("^[a-zA-Z\\+]+$")
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +77,11 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
 	//http.Redirect(w, r, "/index.html", http.StatusFound)
+	key := r.FormValue("pass")
+	if r.Method == "GET" && key != "" {
+		// receive GOT data
+		fmt.Print(key)
+	}
 	renderTemplate(w, "index", nil)
 }
 
@@ -138,7 +143,7 @@ func main() {
 	http.HandleFunc("/", frontHandler)
 	//http.HandleFunc("/index.html", indexHandler)
 	// http.HandleFunc("/new/", newHandler) // Don't register yet, not implemented
-	http.HandleFunc("/old/", makeHandler(oldHandler))
+	//http.HandleFunc("/old/", makeHandler(oldHandler))
 
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("test")
