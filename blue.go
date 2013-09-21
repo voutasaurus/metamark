@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"regexp"
 	//"strings"
-	//"errors"
+	"errors"
 )
+
+var urlLists = make(map[string]List)
 
 type Link struct {
 	URL         string
@@ -18,6 +20,30 @@ type Link struct {
 type List struct {
 	Title string
 	Body  []Link
+}
+
+func init() {
+	// Initialize a dummy "urllists"
+	url1 := "http://www.wikipedia.com"
+	url2 := "http://www.wiktionary.org"
+	desc1 := "Wikipedia: The Commie's Encyclopedia"
+	desc2 := "Wiktionary: Because Reds Need Definitions Too"
+	link1 := Link{URL: url1, Description: desc1}
+	link2 := Link{URL: url2, Description: desc2}
+	list := []Link{link1, link2} // list := make([]Link, 1) ; append(list, link)
+	urlLists["Wiki"] = List{Title: "Wiki", Body: list}
+
+	url3 := "http://www.youtube.com"
+	url4 := "http://www.dailymotion.com"
+	url5 := "http://www.vimeo.com"
+	desc3 := "Fuck videos"
+	desc4 := "Videos are shit"
+	desc5 := "What the fuck is this"
+	link3 := Link{URL: url3, Description: desc3}
+	link4 := Link{URL: url4, Description: desc4}
+	link5 := Link{URL: url5, Description: desc5}
+	list = []Link{link3, link4, link5} // list := make([]Link, 1) ; append(list, link)
+	urlLists["Vids"] = List{Title: "Vids", Body: list}
 }
 
 /*
@@ -51,13 +77,14 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 
 func loadList(key string) (*List, error) {
 	// implement later
-	url := "http://www.wikipedia.com"
-	desc := "Wikipedia: The Commie's Encyclopedia"
-	link := Link{URL: url, Description: desc}
-	list := []Link{link} // list := make([]Link, 1) ; append(list, link)
-	ret := &List{Title: key, Body: list}
+	retVal, ok := urlLists[key]
+	if ok {
+		return &retVal, nil
+	} else {
+		return nil, errors.New("No such key " + key + ".")
+	}
 
-	return ret, nil
+	//return ret, nil
 }
 
 const lenPath = len("/?pass=")
@@ -83,6 +110,7 @@ func frontHandler(w http.ResponseWriter, r *http.Request) {
 		l, err := loadList(key)
 		if err != nil {
 			l = &List{}
+			fmt.Println(err)
 		}
 		renderTemplate(w, "index", l)
 	} else {
