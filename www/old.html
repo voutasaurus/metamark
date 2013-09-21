@@ -13,7 +13,7 @@
     <ul>
         {{range .Body}}
         <li>
-            {{.URL}} : {{.Description}}
+            <a href='{{.URL}}'>{{.URL}} -- {{.Description}}</a>
         </li>
         {{end}}
     </ul>

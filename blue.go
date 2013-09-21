@@ -51,7 +51,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 
 func loadList(key string) (*List, error) {
 	// implement later
-	url := "html://www.wikipedia.com"
+	url := "http://www.wikipedia.com"
 	desc := "Wikipedia: The Commie's Encyclopedia"
 	link := Link{URL: url, Description: desc}
 	list := []Link{link} // list := make([]Link, 1) ; append(list, link)
@@ -136,9 +136,9 @@ func renderTemplate(w http.ResponseWriter, tmpl string, l *List) {
 
 func main() {
 	http.HandleFunc("/", frontHandler)
-	http.HandleFunc("/index.html", indexHandler)
+	//http.HandleFunc("/index.html", indexHandler)
 	// http.HandleFunc("/new/", newHandler) // Don't register yet, not implemented
-	http.HandleFunc("/old", makeHandler(oldHandler))
+	http.HandleFunc("/old/", makeHandler(oldHandler))
 
 	http.ListenAndServe(":8080", nil)
 	fmt.Println("test")
