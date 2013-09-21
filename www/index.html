@@ -1,24 +1,80 @@
+<!DOCTYPE html>
+<!--[if IE 8]>               <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
 <!-- This file is index.html -->
+
 
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
     <title>Project Blue</title>
+    <link rel="stylesheet" href="stylesheets/app.css">
+    <script src="javascripts/vendor/custom.modernizr.js"></script>
 </head>
 <body>
-<a href="new.html" title="Make a new list">New List</a>
-<br />
-<form action="" method="post" accept-charset="utf-8">
-    <div>Code: <input type="text" name="pass"><input type="submit" value="Get"></div>
-</form>
-{{.Error}}
-<div>
-    <ul>
-        {{range .Body}}
-        <li>
-            <a href="{{.URL}}" title="{{.URL}}">{{.Description}}</a>
-        </li>
-        {{end}}
-    </ul>
-</div>
+    <div id="header" class="small-12 columns">
+        <header>
+            <h2>Project Blue</h2>
+            <p id="subhead">Anonymous bookmarking service.</p>
+        </header>
+    </div>
+    <div class="row collapse">
+        <div class="small-3 small-centered columns">
+            <a href="new" class="medium button">Make a new list.</a>
+        </div>
+    </div>
+    <div class="row collapse">
+            <form action="" method="post" accept-charset="utf-8">
+                <div class="large-11 columns">
+                    <input type="hidden" name="formId" value="getList">
+                    <input type="text" id="passkey" name="pass" placeholder="Enter your unique code:">
+                </div>
+                <div class="large-1 column">
+                    <input type="submit" value="Get" class="button prefix">
+                </div>
+            </form>
+    </div>
+    <div class="row">
+        <div class="large-6 large-offset-3 columns">
+            {{.Error}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-12 columns">
+            <ul class="no-bullet">
+                {{range .Links}}
+                <li>
+                    <a href="{{.URL}}" title="{{.URL}}">{{.Description}}</a>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+    </div>
+    <script>
+        document.write('<script src=' +
+        ('__proto__' in {} ? 'javascripts/vendor/zepto' : 'javascripts/vendor/jquery') +
+        '.js><\/script>')
+    </script>
+    <script src="javascripts/foundation/foundation.js"></script>
+    <script src="javascripts/foundation/foundation.abide.js"></script>
+    <script src="javascripts/foundation/foundation.alerts.js"></script>
+    <script src="javascripts/foundation/foundation.clearing.js"></script>
+    <script src="javascripts/foundation/foundation.cookie.js"></script>
+    <script src="javascripts/foundation/foundation.dropdown.js"></script>
+    <script src="javascripts/foundation/foundation.forms.js"></script>
+    <script src="javascripts/foundation/foundation.interchange.js"></script>
+    <script src="javascripts/foundation/foundation.joyride.js"></script>
+    <script src="javascripts/foundation/foundation.magellan.js"></script>
+    <script src="javascripts/foundation/foundation.orbit.js"></script>
+    <script src="javascripts/foundation/foundation.placeholder.js"></script>
+    <script src="javascripts/foundation/foundation.reveal.js"></script>
+    <script src="javascripts/foundation/foundation.section.js"></script>
+    <script src="javascripts/foundation/foundation.tooltips.js"></script>
+    <script src="javascripts/foundation/foundation.topbar.js"></script>
+    <script>
+        $(document).foundation();
+    </script>
 </body>
 </html>

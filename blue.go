@@ -22,7 +22,7 @@ type Link struct {
 
 type List struct {
 	Title string
-	Body  []Link
+	Links []Link
 	Error string
 }
 
@@ -35,7 +35,7 @@ func init() {
 	link1 := Link{URL: url1, Description: desc1}
 	link2 := Link{URL: url2, Description: desc2}
 	list := []Link{link1, link2} // list := make([]Link, 1) ; append(list, link)
-	urlLists["Wiki"] = List{Title: "Wiki", Body: list}
+	urlLists["Wiki"] = List{Title: "Wiki", Links: list}
 
 	url3 := "http://www.youtube.com"
 	url4 := "http://www.dailymotion.com"
@@ -47,7 +47,7 @@ func init() {
 	link4 := Link{URL: url4, Description: desc4}
 	link5 := Link{URL: url5, Description: desc5}
 	list = []Link{link3, link4, link5} // list := make([]Link, 1) ; append(list, link)
-	urlLists["Vids"] = List{Title: "Vids", Body: list}
+	urlLists["Vids"] = List{Title: "Vids", Links: list}
 }
 
 /*
@@ -57,16 +57,16 @@ func titleDisplay(title string) string {
 
 func (p *Page) save() error {
 	filename := "data/" + p.Title + ".txt"
-	return ioutil.WriteFile(filename, p.Body, 0600)
+	return ioutil.WriteFile(filename, p.Links, 0600)
 }
 
 func loadPage(title string) (*Page, error) {
 	filename := "data/" + title + ".txt"
-	body, err := ioutil.ReadFile(filename)
+	Links, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	return &Page{Title: title, Body: body}, nil
+	return &Page{Title: title, Links: Links}, nil
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -87,8 +87,6 @@ func loadList(key string) (*List, error) {
 	} else {
 		return nil, errors.New("No such key \"" + key + "\".")
 	}
-
-	//return ret, nil
 }
 
 const lenPath = len("/?pass=")
@@ -110,7 +108,7 @@ func frontHandler(w http.ResponseWriter, r *http.Request) {
 	//http.Redirect(w, r, "/index.html", http.StatusFound)
 	key := r.FormValue("pass")
 	if r.Method == "POST" && key != "" {
-		// receive GOT data
+		// receive POSTed data
 		l, err := loadList(key)
 		if err != nil {
 			l = &List{Error: err.Error()}
@@ -121,15 +119,51 @@ func frontHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-/*
-func newHandler(w http.ResponseWriter, r *http.Request) {
-	p, err := loadPage()
-	if err != nil {
-		p = &Page{Title: title}
+func makeRedirHandler(pass string) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var key string
+		if pass != "" {
+			key = pass
+		} else {
+			key = r.FormValue("pass")
+		}
+		if r.Method == "POST" && key != "" {
+			// receive POSTed data
+			l, err := loadList(key)
+			if err != nil {
+				l = &List{Error: err.Error()}
+			}
+			renderTemplate(w, "index", l)
+		} else {
+			renderTemplate(w, "index", new(List))
+		}
 	}
-	renderTemplate(w, "new", p)
 }
-*/
+
+func newHandler(w http.ResponseWriter, r *http.Request) {
+	caller := r.FormValue("formId")
+	switch caller {
+	case "newUrl": // do this once db is up and running
+		key := r.FormValue("pass")
+		if r.Method == "POST" && key != "" {
+			l, err := loadList(key)
+			if err != nil {
+				l = &List{Error: err.Error()}
+			} else {
+				// receive POSTed data
+				l.Links = append(l.Links, Link{r.FormValue("url"), r.FormValue("desc")})
+				l.Error = "Successfully added \"" + r.FormValue("desc") + "\"."
+				urlLists[key] = *l
+			}
+			renderTemplate(w, "new", l)
+		}
+	case "getList": // wrong page, try ./
+		makeRedirHandler(r.FormValue("pass"))(w, r)
+	default: // we just got here! come on guys, seriously...
+		renderTemplate(w, "new", new(List))
+	}
+
+}
 
 func oldHandler(w http.ResponseWriter, r *http.Request, key string) {
 	l, err := loadList(key)
@@ -155,8 +189,8 @@ var templates = template.Must(template.ParseFiles("www/index.html", "www/new.htm
 
 /* // Parts may be salvagable for newlist form action
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
-	body := r.FormValue("body")
-	p := &Page{Title: title, Body: []byte(body)}
+	Links := r.FormValue("Links")
+	p := &Page{Title: title, Links: []byte(Links)}
 	err := p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -176,7 +210,10 @@ func renderTemplate(w http.ResponseWriter, tmpl string, l *List) {
 }
 
 func main() {
-	http.HandleFunc("/", frontHandler)
+	http.HandleFunc("/new", newHandler)
+	http.HandleFunc("/", makeRedirHandler(""))
+	http.Handle("/javascripts/", http.FileServer(http.Dir("www")))
+	http.Handle("/stylesheets/", http.FileServer(http.Dir("www")))
 	//http.HandleFunc("/index.html", indexHandler)
 	// http.HandleFunc("/new/", newHandler) // Don't register yet, not implemented
 	//http.HandleFunc("/old/", makeHandler(oldHandler))
@@ -186,8 +223,8 @@ func main() {
 }
 
 /*
-	p1 := &Page{Title: "TestPage", Body: []byte("This is a sample Page.")}
+	p1 := &Page{Title: "TestPage", Links: []byte("This is a sample Page.")}
 	p1.save()
 	p2, _ := loadPage("TestPage")
-	fmt.Println(string(p2.Body))
+	fmt.Println(string(p2.Links))
 */

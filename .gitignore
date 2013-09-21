@@ -3,11 +3,13 @@
 *.a
 *.so
 *~
+*.scss
 
 # Folders
 _obj
 _test
 data
+.sass-cache
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -23,3 +25,8 @@ _testmain.go
 
 *.exe
 Blue
+MIT-LICENSE.txt
+config.rb
+humans.txt
+robots.txt
+foundation.html
