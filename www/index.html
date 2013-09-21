@@ -7,14 +7,15 @@
 <body>
 <a href="new.html" title="Make a new list">New List</a>
 <br />
-<form action="" method="get" accept-charset="utf-8">
+<form action="" method="post" accept-charset="utf-8">
     <div>Code: <input type="text" name="pass"><input type="submit" value="Get"></div>
 </form>
+{{.Error}}
 <div>
     <ul>
         {{range .Body}}
         <li>
-            {{.URL}} : {{.Description}}
+            <a href="{{.URL}}" title="{{.URL}}">{{.Description}}</a>
         </li>
         {{end}}
     </ul>

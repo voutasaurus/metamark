@@ -20,6 +20,7 @@ type Link struct {
 type List struct {
 	Title string
 	Body  []Link
+	Error string
 }
 
 func init() {
@@ -81,7 +82,7 @@ func loadList(key string) (*List, error) {
 	if ok {
 		return &retVal, nil
 	} else {
-		return nil, errors.New("No such key " + key + ".")
+		return nil, errors.New("No such key \"" + key + "\".")
 	}
 
 	//return ret, nil
@@ -105,12 +106,11 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 func frontHandler(w http.ResponseWriter, r *http.Request) {
 	//http.Redirect(w, r, "/index.html", http.StatusFound)
 	key := r.FormValue("pass")
-	if r.Method == "GET" && key != "" {
+	if r.Method == "POST" && key != "" {
 		// receive GOT data
 		l, err := loadList(key)
 		if err != nil {
-			l = &List{}
-			fmt.Println(err)
+			l = &List{Error: err.Error()}
 		}
 		renderTemplate(w, "index", l)
 	} else {
