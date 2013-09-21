@@ -8,6 +8,7 @@ import (
 	"regexp"
 	//"strings"
 	"errors"
+  	"github.com/voutasaurus/Blue/Models"
 )
 
 var urlLists = make(map[string]List)
