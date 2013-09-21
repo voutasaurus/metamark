@@ -8,8 +8,16 @@
 <a href="new.html" title="Make a new list">New List</a>
 <br />
 <form action="" method="get" accept-charset="utf-8">
-    <div>Code: <input type="text" name="pass"></div>
-    <div><input type="submit" value="Get"></div>
+    <div>Code: <input type="text" name="pass"><input type="submit" value="Get"></div>
 </form>
+<div>
+    <ul>
+        {{range .Body}}
+        <li>
+            {{.URL}} : {{.Description}}
+        </li>
+        {{end}}
+    </ul>
+</div>
 </body>
 </html>

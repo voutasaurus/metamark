@@ -80,9 +80,14 @@ func frontHandler(w http.ResponseWriter, r *http.Request) {
 	key := r.FormValue("pass")
 	if r.Method == "GET" && key != "" {
 		// receive GOT data
-		fmt.Print(key)
+		l, err := loadList(key)
+		if err != nil {
+			l = &List{}
+		}
+		renderTemplate(w, "index", l)
+	} else {
+		renderTemplate(w, "index", new(List))
 	}
-	renderTemplate(w, "index", nil)
 }
 
 /*
