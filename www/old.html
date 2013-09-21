@@ -1,0 +1,22 @@
+<!-- This file is old.html -->
+
+<html>
+<head>
+    <title>Project Blue: {{.Title}}</title>
+</head>
+<body>
+<form action="GetList" method="get" accept-charset="utf-8">
+    <div>Code: <input type="text" name="pass"></div>
+    <div><input type="submit" value="Get"></div>
+</form>
+<div>
+    <ul>
+        {{range .Body}}
+        <li>
+            {{.URL}} : {{.Description}}
+        </li>
+        {{end}}
+    </ul>
+</div>
+</body>
+</html>
