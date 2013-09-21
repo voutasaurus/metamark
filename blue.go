@@ -8,8 +8,10 @@ import (
 	"regexp"
 	//"strings"
 	"errors"
-  	"github.com/voutasaurus/Blue/Models"
+	"github.com/voutasaurus/Blue/Models"
 )
+
+var hack *models.Bookmark
 
 var urlLists = make(map[string]List)
 
