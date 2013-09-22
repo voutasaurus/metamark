@@ -15,6 +15,10 @@ var hack *models.Bookmark
 
 var urlLists = make(map[string]List)
 
+var getList = make(chan models.ListRetrieve)
+var addList = make(chan models.AddRequest)
+var removeList = make(chan string)
+
 type Link struct {
 	URL         string
 	Description string
@@ -210,6 +214,8 @@ func renderTemplate(w http.ResponseWriter, tmpl string, l *List) {
 }
 
 func main() {
+	go models.BookmarksCollection(getList, addList, removeList)
+
 	http.HandleFunc("/new", newHandler)
 	http.HandleFunc("/", makeRedirHandler(""))
 	http.Handle("/javascripts/", http.FileServer(http.Dir("www")))
