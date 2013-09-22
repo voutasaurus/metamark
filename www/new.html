@@ -105,14 +105,13 @@
     <script>
         function makeMoreUrls() {
             var filled = true;
-            $(document.getElementsByClassName('urlwatch')).each(function(value) {
-                if (value == "") {
+            $.each(document.getElementsByClassName('urlwatch'), function(value) {
+                if ($(this).val() == "") {
                     filled = false;
                 }
             });
-            $(document.getElementsByClassName('descwatch')).each(function(value) {
-                alert($(this).text);
-                if (value == "") {
+            $.each(document.getElementsByClassName('descwatch'), function(value) {
+                if ($(this).val() == "") {
                     filled = false;
                 }
             });
