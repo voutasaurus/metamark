@@ -60,10 +60,12 @@ const  listCollection = "lists"
 func retrieve(lists bookmarkRepo, key string) Bookmarks {
 
   	result := Bookmarks{}
-  	err := lists.Collection.Find(bson.M{"key": key}).One(&result)
-	if err != nil {
-		panic(err)
-	}
+  	err := lists.Collection.Find(bson.M{"k": key}).One(&result)
+    if err != mgo.ErrNotFound {
+      if err != nil {
+        panic(err)
+      }
+    }
   
 	return result
   
