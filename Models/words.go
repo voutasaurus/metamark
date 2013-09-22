@@ -3,7 +3,7 @@
 package models
 
 import (
-	//"fmt"
+	"fmt"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 	"math/rand"
@@ -12,8 +12,8 @@ import (
 
 type (
 	Word struct {
-		Key  int    `json:"k"	bson:"k"`
-		Word string `json:"w"	bson:"w"`
+		Key  int    "k"
+		Word string "w"
 	}
 
 	WordRepo struct {
@@ -42,6 +42,7 @@ func WordList(word chan string, newColRequest chan ColRequest) {
 
 	// Find the number of words
 	max, err := words.Collection.Count()
+	fmt.Println(max)
 	if err != nil {
 		panic(err)
 	}
@@ -54,8 +55,13 @@ func WordList(word chan string, newColRequest chan ColRequest) {
 		v := r.Intn(max)
 		err = words.Collection.Find(bson.M{"k": v}).One(&result)
 		if err != nil {
-			panic(err)
+			if err != mgo.ErrNotFound {
+				panic(err)
+			} else {
+				fmt.Println("not found")
+			}
 		}
+		fmt.Println(result.Word)
 		select { // Wait for either a word request or a closed channel
 		case word <- result.Word:
 		case _, ok := <-word:

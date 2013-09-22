@@ -18,18 +18,18 @@ type (
 	// The user of the package should initialise the List field.
 	Bookmarks struct {
 		//  Id		bson.ObjectId 	`json:"id"	bson:"_id"`
-		Key     string     `json:"k"	bson:"k"`
-		Created time.Time  `json:"c"	bson:"c"`
-		Viewed  time.Time  `json:"v"	bson:"v"`
-		List    []Bookmark `json:"l"	bson:"l"`
+		Key     string     "key"
+		Created time.Time  "created"
+		Viewed  time.Time  "viewed"
+		List    []Bookmark "list"
 	}
 
 	// Bookmark stores a single bookmark.
 	// The user of the package should initialise the URL and Description fields.
 	Bookmark struct {
 		//  Id	bson.ObjectId 	`json:"id"	bson:"_id"`
-		URL         string `json:"u"	bson:"u"`
-		Description string `json:"d"	bson:"d"`
+		URL         string "url"
+		Description string "description"
 	}
 
 	// bookmarkRepo stores the collection
@@ -60,7 +60,7 @@ const listCollection = "lists"
 func retrieve(lists bookmarkRepo, key string) Bookmarks {
 
 	result := Bookmarks{}
-	err := lists.Collection.Find(bson.M{"k": key}).One(&result)
+	err := lists.Collection.Find(bson.M{"key": key}).One(&result)
 	fmt.Println(result)
 	if err != mgo.ErrNotFound {
 		if err != nil {
