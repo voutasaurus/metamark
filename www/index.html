@@ -37,19 +37,19 @@
             </form>
     </div>
     <div class="row">
-        <div class="large-6 large-offset-3 columns">
-            {{.Error}}
-        </div>
-    </div>
-    <div class="row">
         <div class="large-12 columns">
-            <ul class="no-bullet">
-                {{range .Links}}
-                <li>
-                    <a href="{{.URL}}" title="{{.URL}}">{{.Description}}</a>
-                </li>
-                {{end}}
-            </ul>
+            <p style="text-align: center">{{.Message}}</p>
+        </div>
+        <div class="row">
+            <div class="large-12 columns">
+                <ul class="no-bullet">
+                    {{range .List.List}}
+                    <li>
+                        <a href="{{.URL}}" title="{{.URL}}">{{.Description}}</a>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
         </div>
     </div>
     <script>

@@ -61,10 +61,21 @@
     </div>
     <div class="row">
         <div class="large-12 columns">
-            <p style="text-align: center">There's nothing here yet...</p>
+            <p style="text-align: center">{{.Message}}</p>
+        </div>
+        <div class="row">
+            <div class="large-12 columns">
+                <ul class="no-bullet">
+                    {{range .List.List}}
+                    <li>
+                        <a href="{{.URL}}" title="{{.URL}}">{{.Description}}</a>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
         </div>
     </div>
-    <form action="" onsubmit="return validate()" method="post" id="newUrl" accept-charset="utf-8">
+    <form action="" method="post" id="newUrl" accept-charset="utf-8">
         <div id="originalUrls" class="row collapse">
             <div class="small-3 large-2 columns">
                 <input type="hidden" name="formId" value="addUrl">
@@ -84,26 +95,10 @@
         </div>
         <div class="row collapse">
             <div class="large-1 large-offset-11 columns">
-                <input type="submit" value="Add" class="postfix button">
+                <input type="submit" value="Save" class="postfix button">
             </div>
         </div>
     </form>
-    <div class="row">
-        <div class="large-6 large-offset-3 columns">
-            {{.Error}}
-        </div>
-    </div>
-    <div class="row">
-        <div class="large-12 columns">
-            <ul class="no-bullet">
-                {{range .Links}}
-                <li>
-                    <a href="{{.URL}}" title="{{.URL}}">{{.Description}}</a>
-                </li>
-                {{end}}
-            </ul>
-        </div>
-    </div>
     <script>
         document.write('<script src=' +
         ('__proto__' in {} ? 'javascripts/vendor/zepto' : 'javascripts/vendor/jquery') +

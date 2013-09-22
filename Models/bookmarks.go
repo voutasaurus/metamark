@@ -3,6 +3,7 @@
 package models
 
 import (
+	"fmt"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 	"time"
@@ -60,6 +61,7 @@ func retrieve(lists bookmarkRepo, key string) Bookmarks {
 
 	result := Bookmarks{}
 	err := lists.Collection.Find(bson.M{"k": key}).One(&result)
+	fmt.Println(result)
 	if err != mgo.ErrNotFound {
 		if err != nil {
 			panic(err)

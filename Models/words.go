@@ -51,7 +51,8 @@ func WordList(word chan string, newColRequest chan ColRequest) {
 
 	for { // Serve forever
 		// Get a random word in anticipation
-		err = words.Collection.Find(bson.M{"k": r.Intn(max)}).One(&result)
+		v := r.Intn(max)
+		err = words.Collection.Find(bson.M{"k": v}).One(&result)
 		if err != nil {
 			panic(err)
 		}
@@ -121,7 +122,8 @@ func generate(codesInUse map[string]bool, word chan string) (map[string]bool, st
 	for codesInUse[str] { // If the code is in use, try again
 
 		for i := 0; i < n; i++ {
-			str += <-word // Get a word and add it to the string
+			x := <-word
+			str += x // Get a word and add it to the string
 			if i < n-1 {
 				str += " "
 			}

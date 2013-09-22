@@ -16,6 +16,7 @@ import (
 var getList = make(chan models.ListRetrieve)
 var addList = make(chan models.AddRequest)
 var removeList = make(chan string)
+var lastList InfoBookmarks
 
 type InfoBookmarks struct {
 	List    models.Bookmarks
@@ -147,38 +148,51 @@ func makeRedirHandler(pass string) func(http.ResponseWriter, *http.Request) {
 			if l.List.Key == "" {
 				l.Message = "We couldn't find a list with your key \"" + key + "\"."
 			}
+			lastList = *l
 			renderTemplate(w, "index", l)
-		} //else {
-		//	renderTemplate(w, "index", new(List))
-		//}
+		} else {
+			renderTemplate(w, "index", new(InfoBookmarks))
+		}
 	}
 }
 
 func newHandler(w http.ResponseWriter, r *http.Request) {
 	caller := r.FormValue("formId")
+	fmt.Println(caller)
 	switch caller {
-	case "newUrl": // do this once db is up and running
-		key := r.FormValue("pass")
-		if r.Method == "POST" && key != "" {
-			l, err := loadList(key)
-			if err != nil {
-				l = &List{Error: err.Error()}
-			} else {
-				// receive POSTed data
-				l.Links = append(l.Links, Link{r.FormValue("url"), r.FormValue("desc")})
-				l.Error = "Successfully added \"" + r.FormValue("desc") + "\"."
-				urlLists[key] = *l
+	case "addUrl": // do this once db is up and running
+		if r.Method == "POST" {
+			l := lastList
+			err := r.ParseForm()
+			if err == nil { // this should never fail
+				urls := r.Form["url"]
+				descs := r.Form["desc"]
+				fmt.Println(urls, descs)
+				bookmarks := new(models.Bookmarks)
+				for key := range urls {
+					bookmarks.List = append(bookmarks.List, models.Bookmark{urls[key], descs[key]})
+					fmt.Println(bookmarks.List)
+				}
+				reply := make(chan string)
+				addList <- models.AddRequest{*bookmarks, reply}
+				newKey := <-reply
+				fmt.Println(newKey)
+				if newKey != "" {
+					l.Message = "Successfully saved your links with key \"" + newKey + "\"."
+				}
 			}
-			renderTemplate(w, "new", l)
+			lastList = l
+			renderTemplate(w, "new", &l)
 		}
 	case "getList": // wrong page, try ./
 		makeRedirHandler(r.FormValue("pass"))(w, r)
 	default: // we just got here! come on guys, seriously...
-		renderTemplate(w, "new", new(List))
+		renderTemplate(w, "new", &InfoBookmarks{Message: "There's nothing here yet..."})
 	}
 
 }
 
+/*
 func oldHandler(w http.ResponseWriter, r *http.Request, key string) {
 	l, err := loadList(key)
 	if err != nil {
@@ -190,6 +204,7 @@ func oldHandler(w http.ResponseWriter, r *http.Request, key string) {
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index", nil)
 }
+*/
 
 /* // Activate for functions on templates
 var funcMap = template.FuncMap{
@@ -215,7 +230,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 
 */
 
-func renderTemplate(w http.ResponseWriter, tmpl string, l *List) {
+func renderTemplate(w http.ResponseWriter, tmpl string, l *InfoBookmarks) {
 	err := templates.ExecuteTemplate(w, tmpl+".html", l)
 	if err != nil {
 		fmt.Println("Template " + tmpl + " cannot be rendered")
