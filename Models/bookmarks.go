@@ -60,7 +60,14 @@ const listCollection = "lists"
 func retrieve(lists bookmarkRepo, key string) Bookmarks {
 
 	result := Bookmarks{}
-	err := lists.Collection.Find(bson.M{"key": key}).One(&result)
+  
+    change := mgo.Change{
+          Update: bson.M{"$set": bson.M{"viewed": time.Now()}},
+          ReturnNew: true,
+    }
+  	_, err := lists.Collection.Find(M{"key": key}).Apply(change, &result)
+  
+//	err := lists.Collection.Find(bson.M{"key": key}).One(&result)
 	fmt.Println(result)
 	if err != mgo.ErrNotFound {
 		if err != nil {
