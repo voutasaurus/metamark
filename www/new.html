@@ -8,6 +8,29 @@
 
 <html>
 <head>
+    <script>
+        function makeMoreUrls() {
+            var filled = true;
+            alert(document.getElementsByName('desc').length);
+            jQuery.each(document.getElementsByName('desc'), function() {
+                alert(this.val());
+                if (val == "") {
+                    filled = false;
+                }
+            })
+            document.getElementsByName('url').each(function() {
+                alert(this.val());
+                if (this.val() == "") {
+                    filled = false;
+                }
+            })
+            if (filled) {
+                $(moreUrls).append('<br />');
+                $(moreUrls).append('<div class="row collapse">' + $(originalUrls).html() + '</div>');
+                $(moreUrls).append('<div class="row collapse">' + $(originalDesc).html() + '</div>');
+            }
+        }
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>Project Blue</title>
@@ -43,24 +66,26 @@
         </div>
     </div>
     <form action="" onsubmit="return validate()" method="post" id="newUrl" accept-charset="utf-8">
-        <div class="row collapse">
+        <div id="originalUrls" class="row collapse">
             <div class="small-3 large-2 columns">
                 <input type="hidden" name="formId" value="addUrl">
                 <span class="prefix">http://</span>
             </div>
             <div class="small-9 large-10 columns">
                 <label name="urlError" class="error" style="display: none">Please enter a URL :)</label>
-                <input type="text" name="url" placeholder="Enter your URL...">
+                <input type="text" onblur="makeMoreUrls();" name="url" placeholder="Enter your URL...">
             </div>
         </div>
-        <div class="row collapse">
+        <div id="originalDesc" class="row collapse">
             <div class="large-12 columns">
-                <input type="text" name="desc" placeholder="Enter a short description:">
+                <input type="text" name="desc" onblur="makeMoreUrls();" placeholder="Enter a short description:">
             </div>
+        </div>
+        <div id="moreUrls">
         </div>
         <div class="row collapse">
             <div class="large-1 large-offset-11 columns">
-                <input type="submit" value="Add" class="button">
+                <input type="submit" value="Add" class="postfix button">
             </div>
         </div>
     </form>

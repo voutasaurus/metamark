@@ -123,7 +123,8 @@ dfn {
 hr {
   -moz-box-sizing: content-box;
   box-sizing: content-box;
-  height: 0; }
+  height: 2em;
+  visibility: hidden; }
 
 /**
  * Address styling not present in IE 8/9.
