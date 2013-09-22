@@ -170,14 +170,14 @@ func newHandler(w http.ResponseWriter, r *http.Request) {
 				fmt.Println(urls, descs)
 				bookmarks := new(models.Bookmarks)
 				for key := range urls {
-					bookmarks.List = append(bookmarks.List, models.Bookmark{urls[key], descs[key]})
+					bookmarks.List = append(bookmarks.List, models.Bookmark{"http://" + urls[key], descs[key]})
 					fmt.Println(bookmarks.List)
 				}
 				reply := make(chan string)
 				addList <- models.AddRequest{*bookmarks, reply}
 				newKey := <-reply
-				fmt.Println(newKey)
 				if newKey != "" {
+					l = *loadList(newKey)
 					l.Message = "Successfully saved your links with key \"" + newKey + "\"."
 				}
 			}
