@@ -11,19 +11,18 @@
     <script>
         function makeMoreUrls() {
             var filled = true;
-            alert(document.getElementsByName('desc').length);
-            jQuery.each(document.getElementsByName('desc'), function() {
+            $(document.getElementsByName('desc')).each(function() {
                 alert(this.val());
                 if (val == "") {
                     filled = false;
                 }
-            })
-            document.getElementsByName('url').each(function() {
+            });
+            $(document.getElementsByName('url')).each(function() {
                 alert(this.val());
                 if (this.val() == "") {
                     filled = false;
                 }
-            })
+            });
             if (filled) {
                 $(moreUrls).append('<br />');
                 $(moreUrls).append('<div class="row collapse">' + $(originalUrls).html() + '</div>');
