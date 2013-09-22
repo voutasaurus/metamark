@@ -65,7 +65,7 @@ func retrieve(lists bookmarkRepo, key string) Bookmarks {
           Update: bson.M{"$set": bson.M{"viewed": time.Now()}},
           ReturnNew: true,
     }
-  	_, err := lists.Collection.Find(M{"key": key}).Apply(change, &result)
+  	_, err := lists.Collection.Find(bson.M{"key": key}).Apply(change, &result)
   
 //	err := lists.Collection.Find(bson.M{"key": key}).One(&result)
 	fmt.Println(result)
