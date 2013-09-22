@@ -5,21 +5,24 @@ import (
 	"html/template"
 	//"io/ioutil"
 	"net/http"
-	"regexp"
+	//"regexp"
 	//"strings"
-	"errors"
+	//"errors"
 	"github.com/voutasaurus/Blue/Models"
 )
 
-var hack *models.Bookmark
-
-var urlLists = make(map[string]List)
+// var urlLists = make(map[string]List)
 
 var getList = make(chan models.ListRetrieve)
 var addList = make(chan models.AddRequest)
 var removeList = make(chan string)
 
-type Link struct {
+type InfoBookmarks struct {
+	List    models.Bookmarks
+	Message string
+}
+
+/* type Link struct {
 	URL         string
 	Description string
 }
@@ -29,8 +32,9 @@ type List struct {
 	Links []Link
 	Error string
 }
+*/
 
-func init() {
+/* func init() {
 	// Initialize a dummy "urllists"
 	url1 := "http://www.wikipedia.com"
 	url2 := "http://www.wiktionary.org"
@@ -53,6 +57,7 @@ func init() {
 	list = []Link{link3, link4, link5} // list := make([]Link, 1) ; append(list, link)
 	urlLists["Vids"] = List{Title: "Vids", Links: list}
 }
+*/
 
 /*
 func titleDisplay(title string) string {
@@ -83,16 +88,15 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 }
 */
 
-func loadList(key string) (*List, error) {
+func loadList(key string) *InfoBookmarks {
 	// implement later
-	retVal, ok := urlLists[key]
-	if ok {
-		return &retVal, nil
-	} else {
-		return nil, errors.New("No such key \"" + key + "\".")
-	}
+	reply := make(chan models.Bookmarks)
+	getList <- models.ListRetrieve{key, reply}
+	newList := <-reply
+	return &InfoBookmarks{newList, ""}
 }
 
+/*
 const lenPath = len("/?pass=")
 
 var titleValidator = regexp.MustCompile("^[a-zA-Z\\+]+$")
@@ -107,6 +111,10 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 		fn(w, r, title)
 	}
 }
+
+*/
+
+/*
 
 func frontHandler(w http.ResponseWriter, r *http.Request) {
 	//http.Redirect(w, r, "/index.html", http.StatusFound)
@@ -123,6 +131,8 @@ func frontHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+*/
+
 func makeRedirHandler(pass string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var key string
@@ -133,14 +143,14 @@ func makeRedirHandler(pass string) func(http.ResponseWriter, *http.Request) {
 		}
 		if r.Method == "POST" && key != "" {
 			// receive POSTed data
-			l, err := loadList(key)
-			if err != nil {
-				l = &List{Error: err.Error()}
+			l := loadList(key)
+			if l.List.Key == "" {
+				l.Message = "We couldn't find a list with your key \"" + key + "\"."
 			}
 			renderTemplate(w, "index", l)
-		} else {
-			renderTemplate(w, "index", new(List))
-		}
+		} //else {
+		//	renderTemplate(w, "index", new(List))
+		//}
 	}
 }
 
