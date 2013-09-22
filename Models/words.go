@@ -1,43 +1,4 @@
-/* 
-The words package provides the means to initialise and maintain
-a collection of words, and query the collection for a unique short 
-string of words.
-
-The package also provides a means of ensuring that the strings are
-unique, via UniqueCodeTracker.
-
-In your main function:
-
-Initialise:
-
-request := make(chan ColRequest)
-quit := make(chan bool)
-go Database(request chan ColRequest, quit chan bool)
-defer close(request)
-defer close(quit)
-
-word := make(chan string) // For getting a random word
-go WordList(randWord, request)
-defer close(randWord)
-
-newCode := make(chan string) // For getting a new unique code
-freeCode := make(chan string) // For freeing a code after deletion
-go UniqueCodeTracker(newCode, freeCode, randWord)
-defer close(newCode)
-defer close(freeCode)
-
-During execution:
-
-When you need to get a random word:
-word <- randWord
-
-When you need to get a new code:
-code <- newCode
-
-When you need to free a code:
-freeCode <- code
-
-*/
+// Copyright comment
 
 package models
 
@@ -109,24 +70,35 @@ func WordList(word chan string, newColRequest chan ColRequest) {
 // of which codes are in use. It serves requests for new unique
 // codes, and requests to free expired codes. word is a
 // channel for communicating with WordList.
-func UniqueCodeTracker(newCode chan string, freeCode chan string, word chan string) {
+func UniqueCodeTracker(newCode chan string, freeCode chan string, colRequest chan ColRequest) {
   
+  // Run the words collection
+  randWord := make(chan string) // For getting a random word
+  go WordList(randWord, colRequest)
+  defer close(randWord)
+  
+  // Keep track of which codes are in use
   var codesInUse = make(map[string]bool)
   codesInUse[""] = true // required for the generate function
   
+  // Unique code
   var unique string
   needNewCode := true
   
+  // Serve requests
+  // First pregenerate a unique code
+  // 1. Send the generated code when receiver is ready
+  // 2. Remove the code provided to freeCode
   for {
     // Pregenerate a unique code
     if (needNewCode) { // Only generate if last unique code has been served
-	    codesInUse, unique = generate(codesInUse, word)
+	    codesInUse, unique = generate(codesInUse, randWord)
       	needNewCode = false
     }
     select {
-    case newCode <- unique:
+    case newCode <- unique: // 1. Send new code
       	needNewCode = true
-    case code, ok := <- freeCode:
+    case code, ok := <- freeCode: // 2. Delete expired code
       if ok { // Caller wants to free a code
         delete(codesInUse, code)
       } else { // Caller is dead

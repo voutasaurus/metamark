@@ -1,6 +1,5 @@
-/* 
-The bookmarks package
-*/
+// Copyright
+
 package models
 
 import (
@@ -9,7 +8,13 @@ import (
 	"time"
 )
 
-type ( // types for the bookmarks database
+// types for the bookmarks database
+type (
+  	
+  	// Bookmarks stores a list of bookmarks.
+  	// The Key which is generated when the object is passed to the collection.
+  	// The Created and Viewed fields are maintained by the collection.
+  	// The user of the package should initialise the List field.
 	Bookmarks struct {
 		//  Id		bson.ObjectId 	`json:"id"	bson:"_id"`
 		Key     string     `json:"k"	bson:"k"`
@@ -18,24 +23,31 @@ type ( // types for the bookmarks database
 		List    []Bookmark `json:"l"	bson:"l"`
 	}
 
+  	// Bookmark stores a single bookmark.
+   	// The user of the package should initialise the URL and Description fields.
 	Bookmark struct {
 		//  Id	bson.ObjectId 	`json:"id"	bson:"_id"`
 		URL         string `json:"u"	bson:"u"`
 		Description string `json:"d"	bson:"d"`
 	}
 
-	BookmarkRepo struct {
+  	// bookmarkRepo stores the collection
+	bookmarkRepo struct {
 		Collection *mgo.Collection
 	}
   
-  	addRequest struct {
+  	// AddRequest stores a request for adding a Bookmarks object
+  	// to the bookmarks collection
+  	AddRequest struct {
     	list Bookmarks
       	reply chan string // Return the key
     }
-  
-  	listRetrieve struct {
+
+  	// ListRetrieve stores a request for retrieving a Bookmarks object
+  	// from the bookmarks collection by key
+  	ListRetrieve struct {
       key string
-      reply chan Bookmarks
+      reply chan Bookmarks	// Returns the Bookmarks object found
   	}
 )
 
@@ -45,7 +57,7 @@ const  listCollection = "lists"
 
 // Retrieve finds a Bookmarks object in the database
 // with the value of the Key field given by key
-func retrieve(lists BookmarkRepo, key string) Bookmarks {
+func retrieve(lists bookmarkRepo, key string) Bookmarks {
 
   	result := Bookmarks{}
   	err := lists.Collection.Find(bson.M{"key": key}).One(&result)
@@ -59,7 +71,7 @@ func retrieve(lists BookmarkRepo, key string) Bookmarks {
 
 
 // save inserts a Bookmarks object into the database
-func save(lists BookmarkRepo, bookmarks Bookmarks) {
+func save(lists bookmarkRepo, bookmarks Bookmarks) {
 
   	// Store the current time
     created := time.Now()
@@ -72,23 +84,35 @@ func save(lists BookmarkRepo, bookmarks Bookmarks) {
 		panic(err)
 	}
 
-}
+} 
+
 
 // BookmarksCollection maintains the bookmarks collection
 // and serves requests. It provides channels for retrieval,
 // insertion, and removal. It communicates to WordList via
 // the code channel.
-func BookmarksCollection(newColRequest chan ColRequest,
-                         getList chan listRetrieve,
-                         addList chan addRequest,
-                         removeList chan string,
-                         code chan string) {
+func BookmarksCollection(getList chan ListRetrieve,
+                         addList chan AddRequest,
+                         removeList chan string) {
+  // Run database
+  newColRequest := make(chan ColRequest)
+  dbQuit := make(chan bool)
+  go Database(newColRequest, dbQuit)
+  defer close(newColRequest)
+  defer close(dbQuit)
   
-  // Get the collection from the database
+  // Run the code generator - opens the words collection
+  newCode := make(chan string) // For getting a new unique code
+  freeCode := make(chan string) // For freeing a code after deletion
+  go UniqueCodeTracker(newCode, freeCode, newColRequest)
+  defer close(newCode)
+  defer close(freeCode)
+  
+  // Get the bookmarks collection from the database
   reply := make(chan *mgo.Collection)
   newColRequest <- ColRequest{listCollection, reply}
   collection := <- reply
-  lists := BookmarkRepo{collection}
+  lists := bookmarkRepo{collection}
 
   // Serve requests
   // 1. Get list by key
@@ -104,9 +128,9 @@ func BookmarksCollection(newColRequest chan ColRequest,
       }
     case req, ok := <- addList:
       if ok {
-      	req.list.Key = <- code        // 1. Generate key
-        save(lists, req.list)		// 2. Enter list into database
-        req.reply <- req.list.Key   // 3. Return key
+      	req.list.Key = <- newCode   // Generate key
+        save(lists, req.list)		// Enter list into database
+        req.reply <- req.list.Key   // Return key
       } else { // Caller is dead
       	return // end silently
       }

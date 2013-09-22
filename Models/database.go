@@ -1,19 +1,9 @@
-/*
-The database package provides a way of interfacing with the database to
-create new collections
-
-etc
-
-*/
+// Copyright
 
 package models
 
 import (
-	//"fmt"
 	"labix.org/v2/mgo"
-	//"labix.org/v2/mgo/bson"
-	//"time"
-  	//"math/rand"
 )
 
 const (
@@ -30,7 +20,7 @@ type ColRequest struct {
 // for other functions to take control over certain collections
 func Database(newColRequest chan ColRequest, q chan bool) {
 
-  session, err := mgo.Dial(url)
+  session, err := mgo.Dial(url) // Connect to the database
   if err != nil {
     panic(err)    
   }
