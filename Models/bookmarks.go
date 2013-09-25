@@ -60,25 +60,25 @@ const listCollection = "lists"
 func retrieve(lists bookmarkRepo, key string) Bookmarks {
 
 	result := Bookmarks{}
-  
-  	// Make change to touch object
-    change := mgo.Change{
-          Update: bson.M{"$set": bson.M{"viewed": time.Now()}},
-          ReturnNew: true,
-    }
-  
-  	// Get object (apply the change)
-  	_, err := lists.Collection.Find(bson.M{"key": key}).Apply(change, &result)
 
-  	// Don't worry if you didn't find anything
-  	// result is still Bookmarks{} which is empty
-  	if err != mgo.ErrNotFound { 
+	// Make change to touch object
+	change := mgo.Change{
+		Update:    bson.M{"$set": bson.M{"viewed": time.Now()}},
+		ReturnNew: true,
+	}
+
+	// Get object (apply the change)
+	_, err := lists.Collection.Find(bson.M{"key": key}).Apply(change, &result)
+
+	// Don't worry if you didn't find anything
+	// result is still Bookmarks{} which is empty
+	if err != mgo.ErrNotFound {
 		if err != nil {
 			panic(err)
 		}
 	}
 
-  	// Return the bookmarks object
+	// Return the bookmarks object
 	return result
 
 }
