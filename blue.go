@@ -23,5 +23,5 @@ func main() {
 	http.Handle("/stylesheets/", http.FileServer(http.Dir("www")))
 
 	http.ListenAndServe(":8080", nil)
-	fmt.Println("Project Blue server up and running...")
+	fmt.Println("Project Blue server up and running...") // does main ever get here?
 }

@@ -5,7 +5,7 @@ package models
 import (
 	"fmt"
 	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
+	//"labix.org/v2/mgo/bson"
 	"math/rand"
 	"time"
 )
@@ -40,22 +40,25 @@ func WordList(word chan string, newColRequest chan ColRequest) {
 	collection := <-reply
 	words := WordRepo{collection}
 
-	// Find the number of words
-	max, err := words.Collection.Count()
-	fmt.Println(max)
-	if err != nil {
-		panic(err)
-	}
-
 	r := rand.New(rand.NewSource(time.Now().UnixNano())) // random generator
 	result := Word{}                                     // result of word query
 
 	for { // Serve forever
-		// Get a random word in anticipation
+      
+      // Find the number of words - this may change between requests
+      max, err := words.Collection.Count()
+  	  // fmt.Println(max)
+      if err != nil {	// TODO: catalogue credible errors and handle them appropriately
+          panic(err)
+      }
+      
+      	// Get a random word in anticipation
 		v := r.Intn(max)
 		err = words.Collection.Find(bson.M{"k": v}).One(&result)
+		//err = words.Collection.Find(nil).Skip(v).One(&result)
 		if err != nil {
-			if err != mgo.ErrNotFound {
+          // TODO: Replace with switch statement - maybe in a separate function
+          if err != mgo.ErrNotFound { 
 				panic(err)
 			} else {
 				fmt.Println("not found")
