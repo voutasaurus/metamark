@@ -53,9 +53,10 @@ func WordList(word chan string, newColRequest chan ColRequest) {
       }
       
       	// Get a random word in anticipation
-		v := r.Intn(max)
-		err = words.Collection.Find(bson.M{"k": v}).One(&result)
-		//err = words.Collection.Find(nil).Skip(v).One(&result)
+		v := r.Intn(max) // random integer in [0,max)
+      // Old command: //err = words.Collection.Find(bson.M{"k": v}).One(&result)
+      	// Skips v (skipping 0 would give first, max-1 would give last)
+		err = words.Collection.Find(nil).Skip(v).One(&result)
 		if err != nil {
           // TODO: Replace with switch statement - maybe in a separate function
           if err != mgo.ErrNotFound { 
