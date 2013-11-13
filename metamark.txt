@@ -1,0 +1,10 @@
+Metamark
+
+mark: <URL, metadata>
+
+metadata:
+- tags
+- rating
+- rated tags for relevance rating?
+- rating by quality, popularity?
+- 
