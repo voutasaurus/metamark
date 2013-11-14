@@ -44,22 +44,22 @@ func WordList(word chan string, newColRequest chan ColRequest) {
 	result := Word{}                                     // result of word query
 
 	for { // Serve forever
-      
-      // Find the number of words - this may change between requests
-      max, err := words.Collection.Count()
-  	  // fmt.Println(max)
-      if err != nil {	// TODO: catalogue credible errors and handle them appropriately
-          panic(err)
-      }
-      
-      	// Get a random word in anticipation
+
+		// Find the number of words - this may change between requests
+		max, err := words.Collection.Count()
+		// fmt.Println(max)
+		if err != nil { // TODO: catalogue credible errors and handle them appropriately
+			panic(err)
+		}
+
+		// Get a random word in anticipation
 		v := r.Intn(max) // random integer in [0,max)
-      // Old command: //err = words.Collection.Find(bson.M{"k": v}).One(&result)
-      	// Skips v (skipping 0 would give first, max-1 would give last)
+		// Old command: //err = words.Collection.Find(bson.M{"k": v}).One(&result)
+		// Skips v (skipping 0 would give first, max-1 would give last)
 		err = words.Collection.Find(nil).Skip(v).One(&result)
 		if err != nil {
-          // TODO: Replace with switch statement - maybe in a separate function
-          if err != mgo.ErrNotFound { 
+			// TODO: Replace with switch statement - maybe in a separate function
+			if err != mgo.ErrNotFound {
 				panic(err)
 			} else {
 				fmt.Println("not found")

@@ -15,6 +15,9 @@ import (
 // var urlLists = make(map[string]List)
 
 func main() {
+	defer close(handlers.GetList)
+	defer close(handlers.AddList)
+	defer close(handlers.RemoveList)
 	go models.BookmarksCollection(handlers.GetList, handlers.AddList, handlers.RemoveList)
 
 	http.HandleFunc("/new", handlers.NewHandler)
