@@ -15,10 +15,10 @@ import (
 // var urlLists = make(map[string]List)
 
 func main() {
-	go models.BookmarksCollection(views.GetList, views.AddList, views.RemoveList)
+	go models.BookmarksCollection(handlers.GetList, handlers.AddList, handlers.RemoveList)
 
-	http.HandleFunc("/new", views.NewHandler)
-	http.HandleFunc("/", views.MakeRedirHandler(""))
+	http.HandleFunc("/new", handlers.NewHandler)
+	http.HandleFunc("/", handlers.MakeRedirHandler(""))
 	http.Handle("/javascripts/", http.FileServer(http.Dir("www")))
 	http.Handle("/stylesheets/", http.FileServer(http.Dir("www")))
 
