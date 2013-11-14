@@ -14,18 +14,29 @@ const (
 	blue = "blueDB"
 )
 
+// Request for a handle of a collection
 type ColRequest struct {
-	col   string
-	reply chan *mgo.Collection
+	col   string				// collection name
+	reply chan *mgo.Collection	// handle for session connection to the collection
 }
+
+/*
+
+construct colReq
+go Database(colReq)
+defer(close(colReq))
+
+*/
 
 // Database starts a session on the database and provides channels
 // for other functions to take control over certain collections
-func Database(newColRequest chan ColRequest, q chan bool) {
+func Database(newColRequest chan ColRequest) {
 
 	session, err := mgo.Dial(url) // Connect to the database
-	if err != nil {
-		panic(err)
+	if err != nil {	// If database is not active
+		panic(err)	
+      	// How should one recover from database failure?
+      	// Maybe this should call mongod somehow to reestablish the database?
 	}
 	defer session.Close() // closes the session when database is returned
 
@@ -37,9 +48,7 @@ func Database(newColRequest chan ColRequest, q chan bool) {
 			} else { // Caller is dead - channel is closed
 				return // silently end
 			}
-		case <-q: // quit signal
-			return // silently end
-		}
+        }
 	}
 
 }

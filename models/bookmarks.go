@@ -108,10 +108,10 @@ func BookmarksCollection(getList chan ListRetrieve,
 	removeList chan string) {
 	// Run database
 	newColRequest := make(chan ColRequest)
-	dbQuit := make(chan bool)
-	go Database(newColRequest, dbQuit)
+	//dbQuit := make(chan bool)
+	go Database(newColRequest)
 	defer close(newColRequest)
-	defer close(dbQuit)
+	//defer close(dbQuit)
 
 	// Run the code generator - opens the words collection
 	newCode := make(chan string)  // For getting a new unique code
