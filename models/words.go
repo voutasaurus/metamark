@@ -5,13 +5,13 @@ package models
 import (
 	"fmt"
 	"labix.org/v2/mgo"
-	//"labix.org/v2/mgo/bson"
+	"labix.org/v2/mgo/bson"
 	"math/rand"
 	"time"
 )
 
 type (
-	Word struct {
+/*	Word struct {
 		Key  int    "k"
 		Word string "w"
 	}
@@ -19,7 +19,7 @@ type (
 	WordRepo struct {
 		Collection *mgo.Collection
 	}
-
+*/
 	CodeRequest struct {
 		reply chan string
 	}
@@ -28,51 +28,65 @@ type (
 // Database Collection info
 const wordCollection = "word"
 
+// getwords reads the words from the database into a local variable stored on the heap.
+// This cuts down on database accesses, and encapsulates the database interactions, 
+// making the random word selection more portable.
+func getwords(localwords []string, words *mgo.Collection) error {
+	// Within the words collection, Find documents with the word field, and then Select only
+  	// the contents of that field, and return an Iterator.
+  	iter := words.Find(bson.M{"word": bson.M{"$exists": true}}).Select(bson.M{"word": 1}).Limit(10000).Iter()
+  
+  	// Iterate through the results pulling out the strings.
+  tempresult := struct{word string}{}	
+	for i:=0; iter.Next(&tempresult); i++ {
+        localwords[i] = tempresult.word
+    }
+  	// Close the iterator, return an error where applicable.
+    if err := iter.Close(); err != nil {
+        return err
+    }
+  	return nil	
+}
+
 // WordList initialises and maintains the goside of
 // the words collection from the database. It servesstring
 // requests for random words via the word channel.
 // These requests come from UniqueCodeTracker.
-func WordList(word chan string, newColRequest chan ColRequest) {
-
+func WordList(word chan string, newColRequest chan ColRequest, quit chan bool) {
+  
 	// Get the collection from the database
 	reply := make(chan *mgo.Collection)
 	newColRequest <- ColRequest{wordCollection, reply}
-	collection := <-reply
-	words := WordRepo{collection}
+	words := <-reply // this is the collection
 
+  	// Read the entire word collection into a slice.
+  	// Approx 10000 words, average 8 runes each, rune = 32 bits = 4 bytes,
+  	// total approx 32KB.
+  // TODO: Should make this global mutexed(*) for all WordList goroutines to use (at the moment there is only
+  	// one WordList gorountine).
+  	// Multiple reads can be simultaneous, but simultaneous read & write should be disallowed.
+  	localwords := make([]string, 10000)
+  	getwords(localwords, words)
+  
 	r := rand.New(rand.NewSource(time.Now().UnixNano())) // random generator
-	result := Word{}                                     // result of word query
-
+ 
 	for { // Serve forever
+      
+		// Get a random word in anticipation.
+      	// Note that localwords may be refreshed inbetween uses and len is constant.
+		v := r.Intn(len(localwords)) 	// random integer in [0,len(localwords))
+      	tempword := localwords[v] 		// Random word in localwords
 
-		// Find the number of words - this may change between requests
-		max, err := words.Collection.Count()
-		// fmt.Println(max)
-		if err != nil { // TODO: catalogue credible errors and handle them appropriately
-			panic(err)
+		//Debug
+		fmt.Println(tempword)      
+      
+      	// Wait for either a word request or a quit request
+		select { 
+		case word <- tempword:
+        case <-quit:
+			return // silently end
 		}
-
-		// Get a random word in anticipation
-		v := r.Intn(max) // random integer in [0,max)
-		// Old command: //err = words.Collection.Find(bson.M{"k": v}).One(&result)
-		// Skips v (skipping 0 would give first, max-1 would give last)
-		err = words.Collection.Find(nil).Skip(v).One(&result)
-		if err != nil {
-			// TODO: Replace with switch statement - maybe in a separate function
-			if err != mgo.ErrNotFound {
-				panic(err)
-			} else {
-				fmt.Println("not found")
-			}
-		}
-		fmt.Println(result.Word)
-		select { // Wait for either a word request or a closed channel
-		case word <- result.Word:
-		case _, ok := <-word:
-			if !ok { // caller is dead
-				return // silently end
-			}
-		}
+      	// TODO: add this: case: refresh localwords
 	}
 
 }
@@ -85,10 +99,13 @@ func UniqueCodeTracker(newCode chan string, freeCode chan string, colRequest cha
 
 	// Run the words collection
 	randWord := make(chan string) // For getting a random word
-	go WordList(randWord, colRequest)
+  	quit := make(chan bool)
+	go WordList(randWord, colRequest, quit)
 	defer close(randWord)
+  	defer close(quit)
 
 	// Keep track of which codes are in use
+  // TODO: Make this global to all UniqueCodeTracker goroutines (presently there is only one UCT goroutine)
 	var codesInUse = make(map[string]bool)
 	codesInUse[""] = true // required for the generate function
 
@@ -113,6 +130,8 @@ func UniqueCodeTracker(newCode chan string, freeCode chan string, colRequest cha
 			if ok { // Caller wants to free a code
 				delete(codesInUse, code)
 			} else { // Caller is dead
+              	// tell wordlist to stop
+              	quit <- true
 				return
 			}
 		}

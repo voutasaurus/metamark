@@ -18,6 +18,7 @@ func TestCollectionResponse(t *testing.T) {
   		// Send connection request
   
   // The following tests should be in separate functions:
+  //	(Not named TestXXX - they would then be run independently which would be bad)
   
   	// Test Read:
   		// Positive: To test Read we try to read something we know exists in 
@@ -40,4 +41,33 @@ func TestCollectionResponse(t *testing.T) {
   		// Read to make sure that it is not there.
  	 	// Negative: Also try to destroy a non existent document.
   	
+}
+
+// Object for database
+type Sample struct {
+  	key int
+	name string
+}
+
+func Read(col *mgo.Collection, key int) Sample {
+  // result holder
+  iter := col.Find(bson{"key" : key}).Select({"key" : 1, "name" : 1}).Iter
+  
+  result := Sample{}
+  iter.Next(&result)
+  iter.Close()
+  
+  return result
+}
+
+func Create(col *mgo.Collection, s Sample) error {
+	return col.Insert(s)
+}
+
+func Update(col *mgo.Collection, key int, newname string) error {
+  	return col.Update({"key" : key}, {"name" : newname})
+}
+
+func Destroy(col *mgo.Collection, key int) error {
+	return col.Remove({"key" : key})
 }
