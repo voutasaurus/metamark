@@ -11,11 +11,11 @@ import (
 )
 
 type (
-/*	Word struct {
-		Key  int    "k"
+	Word struct {
+		//Key  int    "k"
 		Word string "w"
 	}
-
+/*
 	WordRepo struct {
 		Collection *mgo.Collection
 	}
@@ -27,6 +27,7 @@ type (
 
 // Database Collection info
 const wordCollection = "word"
+const wordField = "w"
 
 // getwords reads the words from the database into a local variable stored on the heap.
 // This cuts down on database accesses, and encapsulates the database interactions, 
@@ -34,13 +35,21 @@ const wordCollection = "word"
 func getwords(localwords []string, words *mgo.Collection) error {
 	// Within the words collection, Find documents with the word field, and then Select only
   	// the contents of that field, and return an Iterator.
-  	iter := words.Find(bson.M{"word": bson.M{"$exists": true}}).Select(bson.M{"word": 1}).Limit(10000).Iter()
+  	iter := words.Find(bson.M{wordField: bson.M{"$exists": true}}).Select(bson.M{wordField: 1}).Limit(10000).Iter()
   
   	// Iterate through the results pulling out the strings.
-  tempresult := struct{word string}{}	
+  tempresult := Word{}	
 	for i:=0; iter.Next(&tempresult); i++ {
-        localwords[i] = tempresult.word
+        localwords[i] = tempresult.Word
+      //Debug: fmt.Print(tempresult.Word, ",")
     }
+  
+  //Debug: fmt.Println(len(localwords))
+  	// We should check len(localwords) to catch errors
+  	if len(localwords) < 1000 {
+  		// some error - we need to close the iterator also.
+      	// composite errors may occur.
+  	}
   	// Close the iterator, return an error where applicable.
     if err := iter.Close(); err != nil {
         return err
@@ -66,7 +75,10 @@ func WordList(word chan string, newColRequest chan ColRequest, quit chan bool) {
   	// one WordList gorountine).
   	// Multiple reads can be simultaneous, but simultaneous read & write should be disallowed.
   	localwords := make([]string, 10000)
-  	getwords(localwords, words)
+  	err := getwords(localwords, words)
+  	if err != nil {
+  		panic(err) // Replace this with error handling function
+  	}
   
 	r := rand.New(rand.NewSource(time.Now().UnixNano())) // random generator
  
