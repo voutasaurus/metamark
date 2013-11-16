@@ -44,7 +44,13 @@ func getwords(localwords []string, words *mgo.Collection) error {
       //Debug: fmt.Print(tempresult.Word, ",")
     }
   
-  //Debug: fmt.Println(len(localwords))
+  	/* // Debug
+    //fmt.Println("First: ", localwords[0])
+    //fmt.Println("Last: ", localwords[10000-1])
+    
+    //Debug: fmt.Println(len(localwords))
+	*/
+  
   	// We should check len(localwords) to catch errors
   	if len(localwords) < 1000 {
   		// some error - we need to close the iterator also.
