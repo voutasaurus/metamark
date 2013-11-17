@@ -16,8 +16,8 @@ const (
 
 // Request for a handle of a collection
 type ColRequest struct {
-	col   string				// collection name
-	reply chan *mgo.Collection	// handle for session connection to the collection
+	col   string               // collection name
+	reply chan *mgo.Collection // handle for session connection to the collection
 }
 
 /*
@@ -33,10 +33,10 @@ defer(close(colReq))
 func Database(newColRequest chan ColRequest) {
 
 	session, err := mgo.Dial(url) // Connect to the database
-	if err != nil {	// If database is not active
-		panic(err)	
-      	// How should one recover from database failure?
-      	// Maybe this should call mongod somehow to reestablish the database?
+	if err != nil {               // If database is not active
+		panic(err)
+		// How should one recover from database failure?
+		// Maybe this should call mongod somehow to reestablish the database?
 	}
 	defer session.Close() // closes the session when database is returned
 
@@ -48,7 +48,7 @@ func Database(newColRequest chan ColRequest) {
 			} else { // Caller is dead - channel is closed
 				return // silently end
 			}
-        }
+		}
 	}
 
 }

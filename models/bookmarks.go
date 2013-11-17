@@ -12,9 +12,9 @@ import (
 // types for the bookmarks database
 type (
 
-  	// We should use a Url type to add constraints
-  	Url string
-  
+	// We should use a Url type to add constraints
+	Url string
+
 	// Bookmarks stores a list of bookmarks.
 	// The Key which is generated when the object is passed to the collection.
 	// The Created and Viewed fields are maintained by the collection.
