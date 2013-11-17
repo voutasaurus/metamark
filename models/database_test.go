@@ -65,7 +65,7 @@ func Create(col *mgo.Collection, s Sample) error {
 }
 
 func Update(col *mgo.Collection, key int, newname string) error {
-  	return col.Update({"key" : key}, {"name" : newname})
+  return col.Update({"key" : key}, {$set: {"name" : newname}})
 }
 
 func Destroy(col *mgo.Collection, key int) error {
