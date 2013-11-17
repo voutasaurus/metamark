@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	//url  = "192.168.1.10:27017" // mongodb address
-	url  = "localhost:27017" // temp mongodb address for testing
+	url = "192.168.1.2:27017" // mongodb address
+	//url  = "localhost:27017" // temp mongodb address for testing
 	blue = "blueDB"
 )
 
