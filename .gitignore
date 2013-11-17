@@ -10,7 +10,6 @@ _obj
 _test
 # data
 .sass-cache
-._0
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -33,5 +32,6 @@ robots.txt
 foundation.html
 # google*
 
+*._0
 mongod.lock
 blueDB.1
