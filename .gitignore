@@ -10,6 +10,7 @@ _obj
 _test
 # data
 .sass-cache
+._0
 
 # Architecture specific extensions/prefixes
 *.[568vq]

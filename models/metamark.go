@@ -88,7 +88,7 @@ func tagify(s string) []Tag {
 			// make tag and add to result
 			temp := Tag{term, 1.0}
 			tags = append(tags, temp)
-        }
+		}
 	}
 	return tags
 }
