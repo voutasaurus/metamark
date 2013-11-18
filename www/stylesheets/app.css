@@ -2046,7 +2046,7 @@ p aside {
 /* Default header styles */
 /* line 181, ../sass/foundation/components/_type.scss */
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Bebas Neue", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+  font-family: "BebasNeue", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
   font-weight: bold;
   font-style: normal;
   color: #eeeeff;
