@@ -1,3 +1,7 @@
+// Package main is the main package of the Blue library.
+//
+// It initializes important channels, and controls the
+// fileserver handling the main pages.
 package main
 
 import (

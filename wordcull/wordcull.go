@@ -1,3 +1,5 @@
+// Package wordcull includes the logic to include and exclude
+// sets of words for creation of pass phrases.
 package wordcull
 
 import (
@@ -11,6 +13,8 @@ import (
 	//"strings"
 )
 
+// portmanteau determines if a word is made up of precisely two
+// other words in a given list.
 func portmanteau(s string, list map[string]bool) bool {
 	pres, sufs := make([]string, 0), make([]string, 0)
 	for test := range list {
@@ -36,6 +40,10 @@ func portmanteau(s string, list map[string]bool) bool {
 	// do this
 }
 
+// checkWord determines whether a given word is within two bounds.
+//
+// TODO(Luke): Change this from magic numbers to user-specified
+// bounds.
 func checkWord(s string) bool {
 
 	if len(s) < 4 {
@@ -49,7 +57,12 @@ func checkWord(s string) bool {
 	return true
 }
 
-func wordcull() {
+// Wordcull provides the main logic for the package.
+//
+// TODO(Luke): Move the list of excluded words to a text file.
+//
+// TODO(Luke): Allow user-specified culling.
+func Wordcull() {
 	f, _ := os.Open("google-10000-english.txt")
 	defer f.Close()
 	fo, _ := os.Create("newwords.txt")
