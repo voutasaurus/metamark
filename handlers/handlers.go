@@ -1,3 +1,5 @@
+// Package handlers contains the handlers for the web server
+// portion of Blue.
 package handlers
 
 import (
@@ -7,27 +9,37 @@ import (
 	"net/http"
 )
 
-// public vars
-
+// GetList is a channel for handling requests to retrieve lists.
 var GetList = make(chan models.ListRetrieve)
+
+// AddList is a channel for handling requests to add new lists.
 var AddList = make(chan models.AddRequest)
+
+// RemoveList is a channel for handling requests to remove lists.
 var RemoveList = make(chan string)
 
-// private vars
-
+// lastList is a hacky solution to displaying the previously
+// accessed list.
 var lastList InfoBookmarks
+
+// templates is a list of HTML templates which are parsed for the
+// handler.
 var templates = template.Must(template.ParseFiles(
 	"www/index.html",
 	"www/new.html",
 	"www/old.html"))
 
+// InfoBookmarks is a hacky solution type which contains a list
+// of bookmarks, along with a message for the HTML template
+// to display (such as an error, or as the type is named, information.)
 type InfoBookmarks struct {
 	List    models.Bookmarks
 	Message string
 }
 
-// public functions
-
+// MakeRedirHandler creates and serves a handler for redirecting pages.
+// It is possibly misnamed; it only ever redirects users back to the
+// index page at the "/" path.
 func MakeRedirHandler(pass string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var key string
@@ -50,6 +62,8 @@ func MakeRedirHandler(pass string) func(http.ResponseWriter, *http.Request) {
 	}
 }
 
+// NewHandler creates and serves a handler for the "create a new list"
+// page.
 func NewHandler(w http.ResponseWriter, r *http.Request) {
 	caller := r.FormValue("formId")
 	fmt.Println(caller)
@@ -85,8 +99,7 @@ func NewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// private functions
-
+// loadList retrieves an existing list from the database.
 func loadList(key string) *InfoBookmarks {
 	// implement later
 	reply := make(chan models.Bookmarks)
@@ -95,6 +108,8 @@ func loadList(key string) *InfoBookmarks {
 	return &InfoBookmarks{newList, ""}
 }
 
+// renderTemplate displays the correctly templated HTML so the
+// user can access the page.
 func renderTemplate(w http.ResponseWriter, tmpl string, l *InfoBookmarks) {
 	err := templates.ExecuteTemplate(w, tmpl+".html", l)
 	if err != nil {
