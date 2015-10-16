@@ -1,10 +1,10 @@
 // Package handlers contains the handlers for the web server
-// portion of Blue.
+// portion of metamark.
 package handlers
 
 import (
 	"fmt"
-	"github.com/voutasaurus/Blue/models"
+	"github.com/voutasaurus/metamark/models"
 	"html/template"
 	"net/http"
 )

@@ -1,4 +1,4 @@
-// Package main is the main package of the Blue library.
+// Package main is the main package of the metamark library.
 //
 // It initializes important channels, and controls the
 // fileserver handling the main pages.
@@ -12,8 +12,8 @@ import (
 	//"regexp"
 	//"strings"
 	//"errors"
-	"github.com/voutasaurus/Blue/handlers"
-	"github.com/voutasaurus/Blue/models"
+	"github.com/voutasaurus/metamark/handlers"
+	"github.com/voutasaurus/metamark/models"
 )
 
 // var urlLists = make(map[string]List)
@@ -29,6 +29,6 @@ func main() {
 	http.Handle("/javascripts/", http.FileServer(http.Dir("www")))
 	http.Handle("/stylesheets/", http.FileServer(http.Dir("www")))
 
-	fmt.Println("Project Blue server up and running...") // does main ever get here? - It does now. :P
+	fmt.Println("metamark server up and running...") // does main ever get here? - It does now. :P
 	http.ListenAndServe(":8080", nil)
 }
